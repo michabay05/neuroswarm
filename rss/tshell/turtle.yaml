@@ -1,0 +1,13 @@
+# Units are MGS (Meters, Grams, Seconds) and radians unless otherwise specified
+type: "MazeAgent"
+position: [5, 5]
+name: "turtle"
+agent_radius: !np 0.2 / 2
+sensors:
+  - type: "BinaryFOVSensor"
+    theta: 0.45  # Vision Angle / 2 (Radians)
+    distance: 1.0  # meters. previously 2.55
+controller:
+  type: "BinaryController"
+  a: [0.27, -0.6]
+  b: [0.27, 0.6]

@@ -1,0 +1,9 @@
+# Units are MGS (Meters, Grams, Seconds) and radians unless otherwise specified
+type: "MazeAgent"
+name: "mario"
+position: [5, 5]
+agent_radius: !np 0.2 / 2
+controller:
+  type: "StaticController"
+  output: [0.0, 0.0]
+body_color: [255, 255, 0]

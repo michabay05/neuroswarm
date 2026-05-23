@@ -1,0 +1,13 @@
+---
+type: "RectangularWorld"
+size: [10, 10]
+time_step: !np 1 / 40  # 0.025 seconds
+agents:
+  - !include mario.yaml
+spawners:
+  - type: "PointAgentSpawner"
+    mode: "oneshot"
+    n: 6
+    facing: "away"
+    avoid_overlap: true
+    agent: !include turtle.yaml
