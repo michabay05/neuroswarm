@@ -26,7 +26,7 @@ config = config_from_yaml(
 
 # NOTE: Max vel found   - 0.35 m/s
 # NOTE: Max omega found - 143.292 deg/s
-V_MAX, W_MAX = 0.3, np.deg2rad(140)
+V_MAX, W_MAX = 0.3, np.deg2rad(130)
 PERFECT_SCORE = 0
 MAX_ITERS = 150
 POP_SIZE = 15
@@ -192,12 +192,13 @@ def test_cma(config):
         target=PERFECT_SCORE,
         experiment=None,
         max_iters=MAX_ITERS,
-        pop_size=15,
+        pop_size=24,
         round_to_every=None
     )
 
     result, _ = cmaes.minimize()
-    best_conf = get_world_generator(n=n)(result.best_feasible["x"])
+    unnormalized_genome = DECISION_VARS.unit_unnormalize(result.best_feasible["x"])
+    best_conf = get_world_generator(n=n)(unnormalized_genome)
     return test_single(best_conf[0])
 
 def test_mp_w_cma(samples=100, n_range=None):
@@ -218,6 +219,8 @@ def test_mp_w_cma(samples=100, n_range=None):
                 'n': n,
                 **stat
             })
+
+
     # ttcs = np.array(ttcs)
     # sns.histplot(ttcs)
     # plt.show()
