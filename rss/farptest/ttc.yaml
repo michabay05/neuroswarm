@@ -8,7 +8,7 @@ metrics:
     {% set redwin = world.metrics[3].value %}
     {% set captured = ttc if ttc > 0 else False %}
     {% set detected = ttd if ttd > 0 else False %}
-  expression: -1000 if redwin or not captured else -(ttc|abs)
+  expression: 1000 if redwin or not captured else (ttc|abs)
 - type: StepsUntil
   name: Time to Detect sub
   default: -1

@@ -9,21 +9,40 @@ from matplotlib import pyplot as plt
 from swarmsim.config import register_dictlike_type, register_agent_type
 from swarmsim.agent.MazeAgent import MazeAgentConfig
 from swarmsim.world.spawners.DonutSpawner import DonutAgentSpawner
-from swarmsim.world.RectangularWorld import RectangularWorldConfig
 from swarmsim.world.subscribers.WorldSubscriber import WorldSubscriber as WorldSubscriber
 from swarmsim.world.simulate import main as simulator
+from swarmsim.world import config_from_yaml
 
+from CMAES import CMAES
+from OptimVar import CMAESVarSet
 
 cwd = Path(__file__).resolve().parent
-config = RectangularWorldConfig.from_yaml_template(
+config = config_from_yaml(
     cwd / "world.yaml",
     m='ttc',
     evader='pid',
+    g=[0.2, 0.2, 0.2, 0]
 )
+
+# NOTE: Max vel found   - 0.35 m/s
+# NOTE: Max omega found - 143.292 deg/s
+V_MAX, W_MAX = 0.3, np.deg2rad(140)
+PERFECT_SCORE = 0
+MAX_ITERS = 150
+POP_SIZE = 15
+SCALE = 1
+DECISION_VARS = CMAESVarSet(
+    {
+        "forward_rate_0": [-V_MAX, V_MAX],
+        "turning_rate_0": [-W_MAX, W_MAX],  # Radians / second
+        "forward_rate_1": [-V_MAX, V_MAX],
+        "turning_rate_2": [-W_MAX, W_MAX],  # Radians / second
+    }
+)
+
 
 # gui = TennlabGUI(x=0, y=0, h=0, w=300)
 # gui.position = "sidebar_right"
-
 
 def test_single(config):
     tempconfig = copy.deepcopy(config)
@@ -33,7 +52,7 @@ def test_single(config):
         world_config=tempconfig,
         subscribers=[],
         # gui=gui,
-        show_gui=True,
+        show_gui=False,
         start_paused=False,
         framerate_limit=20,
     )  # run simulator
@@ -147,9 +166,70 @@ def run():
     return world
 
 
+
+def get_world_generator(n=6, seed=2023):
+    def gene_to_world(genome, hash_val=None):
+        world_conf = config_from_yaml(cwd / "world.yaml", m="ttc", evader="pid", n=n, seed=seed, g=genome)
+        world_conf.metadata = {"hash": hash(tuple(list(hash_val))) if hash_val is not None else None}
+        worlds = [world_conf]
+
+        return worlds
+
+    return gene_to_world
+
+def test_cma(config):
+    n, seed = config
+    def _fitness(world):
+        assert len(world) == 1
+        return world[0].metrics[0].value
+
+    cmaes = CMAES(
+        _fitness,
+        genome_to_world=get_world_generator(n=n, seed=seed),
+        dvars=DECISION_VARS,
+        num_processes=None,
+        show_each_step=False,
+        target=PERFECT_SCORE,
+        experiment=None,
+        max_iters=MAX_ITERS,
+        pop_size=15,
+        round_to_every=None
+    )
+
+    result, _ = cmaes.minimize()
+    best_conf = get_world_generator(n=n)(result.best_feasible["x"])
+    return test_single(best_conf[0])
+
+def test_mp_w_cma(samples=100, n_range=None):
+    seeds = np.random.default_rng(config.seed).integers(0, 2**31, size=samples)
+    results = []
+    for n in n_range or range(1, 10):
+        print(f"\n\n************************\n\n      n = {n}\n\n************************\n\n")
+        # configs = [(n, seeds[i]) for i in range(samples)]
+        # ret_arr = process_map(test_cma, configs)
+        ret_arr = []
+        for i in range(samples):
+            ret_arr.append(test_cma((n, seeds[i])))
+
+        stats, ttcs = zip(*ret_arr)
+        print('n: ', n, sum(stats, Counter()))
+        for stat in stats:
+            results.append({
+                'n': n,
+                **stat
+            })
+    # ttcs = np.array(ttcs)
+    # sns.histplot(ttcs)
+    # plt.show()
+    print(results)
+    return results
+
 if __name__ == "__main__":
-    # test_mp()
-    # test_grid()
-    # test_seq()
-    run()
+    # # test_mp()
+    # # test_grid()
+    # # test_seq()
+    # run()
     # print(*test_single(config))
+
+    test_cma((8, 2023))
+    # test_mp_w_cma(n_range=[*range(1, 10, 2)])

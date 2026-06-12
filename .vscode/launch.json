@@ -1,39 +1,12 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
     "configurations": [
-
-
         {
-            "name": "Python Debugger: Current File with Arguments",
+            "name": "farptest debug",
             "type": "debugpy",
             "request": "launch",
-            "program": "${file}",
+            "program": "rss/farptest/farptest.py",
             "console": "integratedTerminal",
-            "args": "${command:pickArgs}",
             "justMyCode": false,
-        },
-
-        {
-            "name": "Python Debugger: tenn2 run",
-            "type": "debugpy",
-            "request": "launch",
-            // "cwd": "/home/videblu/neuromorphic/RobotSwarmSimulator/demo/configs/conftest",
-            "program": "experiment_tenn2.py",
-            "args": "run --log --sta",
-            "justMyCode": false,
-        },
-
-        {
-            "name": "Python Debugger: tenn2 train",
-            "type": "debugpy",
-            "request": "launch",
-            // "cwd": "/home/videblu/neuromorphic/RobotSwarmSimulator/demo/configs/conftest",
-            "program": "experiment_tenn2.py",
-            "args": ["train", "artifact_test", "--overwrite_project", "-p", "1", "--eons_seed", "20"],
-            "justMyCode": false,
-        },
+        }
     ]
 }

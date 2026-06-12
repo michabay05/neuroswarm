@@ -4,7 +4,7 @@ size:  # in meters
   - 10
   - 10
 time_step: !np 1 / 20  # 0.05 seconds
-seed: 2023
+seed: <{ seed|default(2023) }>
 spawners:
 - type: UniformAgentSpawner
   n: <{ n|default(6) }>  # default number of agents BUT may be overridden by user args
@@ -29,8 +29,8 @@ spawners:
       target_team: red
     controller:
       type: BinaryController
-      a: [0.2, 0.2]
-      b: [0.2, 0]
+      a: [<{ g[0] }>, <{ g[1] }>]
+      b: [<{ g[2] }>, <{ g[3] }>]
       sensor_id: 0
     #   type: LevyController
     #   velocity: 0.2
