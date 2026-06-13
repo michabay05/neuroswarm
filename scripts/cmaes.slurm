@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## Give your job a name to distinguish it from other jobs you run.
-#SBATCH --job-name=first-test-run-framework
+#SBATCH --job-name=cmaes_expr01
 
 ## General partitions: all-HiPri, bigmem-HiPri   --   (12 hour limit)
 ##                     all-LoPri, bigmem-LoPri, gpuq  (5 days limit)
@@ -31,7 +31,7 @@
 
 ## Commands to Load Modules:
 module load use.own uv
-
+source ~/cmaes_stuff/turtwig/scripts/new_deploy.sh
 
 ## Load modules, insert code, and run your programs here.
-echo "NOT DONE; COME BACK AND FINISH THIS"
+python rss/farptest/farptest.py -t 1000 -s 50 -i 100 -p 50
