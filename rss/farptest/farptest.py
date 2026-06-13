@@ -242,7 +242,8 @@ if __name__ == "__main__":
     # test_cma((8, 2023))
     # print(f"Took {time.time() - start} seconds")
 
-    import argparse, time
+    import argparse
+    import time
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", type=int, default=1000, help="Environment Horizon")
     parser.add_argument("-s", "--samples", type=int, default=30, help="Number of samples")
@@ -251,5 +252,9 @@ if __name__ == "__main__":
 
     start = time.time()
     args = parser.parse_args()
-    test_mp_w_cma(samples=args.samples, n_range=[2, 3, 4, 5], iters=args.iters, pop_size=args.pop_size)
+    test_mp_w_cma(samples=args.samples,
+        n_range=[*range(6, 20+1, 2)],
+        iters=args.iters,
+        pop_size=args.pop_size
+    )
     print(f"Took {time.time() - start} seconds")

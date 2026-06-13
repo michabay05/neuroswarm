@@ -1,0 +1,8 @@
+swarmsim
+tqdm
+pandas
+openpyxl
+pyyaml
+inquirerpy
+caspyan
+show-in-file-manager
