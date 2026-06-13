@@ -2,6 +2,7 @@ import copy
 from pathlib import Path
 from collections import Counter
 
+import pandas as pd
 import numpy as np
 from tqdm.contrib.concurrent import process_map
 from matplotlib import pyplot as plt
@@ -26,10 +27,8 @@ config = config_from_yaml(
 
 # NOTE: Max vel found   - 0.35 m/s
 # NOTE: Max omega found - 143.292 deg/s
-V_MAX, W_MAX = 0.3, np.deg2rad(130)
+V_MAX, W_MAX = 0.3, np.deg2rad(90)
 PERFECT_SCORE = 0
-MAX_ITERS = 150
-POP_SIZE = 15
 SCALE = 1
 DECISION_VARS = CMAESVarSet(
     {
@@ -111,6 +110,7 @@ def test_seq(samples=10):
     # sns.histplot(ttcs)
     # plt.show()
     print(results)
+
     return results
 
 
@@ -177,8 +177,7 @@ def get_world_generator(n=6, seed=2023):
 
     return gene_to_world
 
-def test_cma(config):
-    n, seed = config
+def test_cma(n, seed, iters, pop_size):
     def _fitness(world):
         assert len(world) == 1
         return world[0].metrics[0].value
@@ -191,8 +190,8 @@ def test_cma(config):
         show_each_step=False,
         target=PERFECT_SCORE,
         experiment=None,
-        max_iters=MAX_ITERS,
-        pop_size=24,
+        max_iters=iters,
+        pop_size=pop_size,
         round_to_every=None
     )
 
@@ -201,7 +200,7 @@ def test_cma(config):
     best_conf = get_world_generator(n=n)(unnormalized_genome)
     return test_single(best_conf[0])
 
-def test_mp_w_cma(samples=100, n_range=None):
+def test_mp_w_cma(samples=100, n_range=None, iters=5, pop_size=10):
     seeds = np.random.default_rng(config.seed).integers(0, 2**31, size=samples)
     results = []
     for n in n_range or range(1, 10):
@@ -210,7 +209,7 @@ def test_mp_w_cma(samples=100, n_range=None):
         # ret_arr = process_map(test_cma, configs)
         ret_arr = []
         for i in range(samples):
-            ret_arr.append(test_cma((n, seeds[i])))
+            ret_arr.append(test_cma(n, seeds[i], iters=iters, pop_size=pop_size))
 
         stats, ttcs = zip(*ret_arr)
         print('n: ', n, sum(stats, Counter()))
@@ -225,14 +224,32 @@ def test_mp_w_cma(samples=100, n_range=None):
     # sns.histplot(ttcs)
     # plt.show()
     print(results)
+
+    import json
+    with open("test.json", "w") as f:
+        json.dump(results, f)
+
     return results
 
 if __name__ == "__main__":
-    # # test_mp()
+    # test_mp()
     # # test_grid()
     # # test_seq()
     # run()
-    # print(*test_single(config))
 
-    test_cma((8, 2023))
-    # test_mp_w_cma(n_range=[*range(1, 10, 2)])
+    # import time
+    # start = time.time()
+    # test_cma((8, 2023))
+    # print(f"Took {time.time() - start} seconds")
+
+    import argparse, time
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-t", type=int, default=1000, help="Environment Horizon")
+    parser.add_argument("-s", "--samples", type=int, default=30, help="Number of samples")
+    parser.add_argument("-i", "--iters", type=int, default=5, help="Maximum number of iterations")
+    parser.add_argument("-p", "--pop_size", type=int, default=10, help="Population size")
+
+    start = time.time()
+    args = parser.parse_args()
+    test_mp_w_cma(samples=args.samples, n_range=[2, 3, 4, 5], iters=args.iters, pop_size=args.pop_size)
+    print(f"Took {time.time() - start} seconds")
