@@ -250,10 +250,13 @@ if __name__ == "__main__":
     parser.add_argument("-i", "--iters", type=int, default=5, help="Maximum number of iterations")
     parser.add_argument("-p", "--pop_size", type=int, default=10, help="Population size")
 
+    # TODO: make n_range acceptable via cmd args
+
     start = time.time()
     args = parser.parse_args()
     test_mp_w_cma(samples=args.samples,
-        n_range=[*range(6, 20+1, 2)],
+        # n_range=[*range(6, 20+1, 2)],
+        n_range=[*range(22, 40+1, 2)],
         iters=args.iters,
         pop_size=args.pop_size
     )
