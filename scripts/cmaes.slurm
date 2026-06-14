@@ -34,4 +34,6 @@ module load use.own uv
 source ~/cmaes_stuff/turtwig/scripts/new_deploy.sh
 
 ## Load modules, insert code, and run your programs here.
-python rss/farptest/farptest.py -t 1000 -s 50 -i 100 -p 50
+
+# python rss/farptest/farptest.py -t 1000 -s 50 -i 100 -p 50 -n 6 20 2
+python rss/farptest/farptest.py -t 1000 -s 50 -i 50 -p 40 -n 5 50 5

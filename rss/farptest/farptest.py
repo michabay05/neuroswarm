@@ -249,14 +249,21 @@ if __name__ == "__main__":
     parser.add_argument("-s", "--samples", type=int, default=30, help="Number of samples")
     parser.add_argument("-i", "--iters", type=int, default=5, help="Maximum number of iterations")
     parser.add_argument("-p", "--pop_size", type=int, default=10, help="Population size")
+    parser.add_argument(
+        "-n", "--n_range",
+        type=int, nargs=3, default=[5, 50, 5],
+        help="Range of n values to test (min, max, step); min and max are inclusive"
+    )
 
-    # TODO: make n_range acceptable via cmd args
+    args = parser.parse_args()
+
+    min_n, max_n, step = args.n_range
+    assert min_n < max_n, "n_range must be increasing"
+    assert step > 1, "step must be greater than 1"
 
     start = time.time()
-    args = parser.parse_args()
     test_mp_w_cma(samples=args.samples,
-        # n_range=[*range(6, 20+1, 2)],
-        n_range=[*range(22, 40+1, 2)],
+        n_range=[*range(min_n, max_n+1, step)],
         iters=args.iters,
         pop_size=args.pop_size
     )
