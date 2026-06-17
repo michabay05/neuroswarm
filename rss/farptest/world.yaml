@@ -4,10 +4,10 @@ size:  # in meters
   - 10
   - 10
 time_step: !np 1 / 20  # 0.05 seconds
-seed: <{ seed|default(2023) }>
+seed: <{ seed|default(2024) }>
 spawners:
 - type: UniformAgentSpawner
-  n: <{ n|default(6) }>  # default number of agents BUT may be overridden by user args
+  n: <{ blue_n|default(6) }>  # default number of agents BUT may be overridden by user args
   facing: away
   region: [[4.4, 4.4], [4.4, 5.6], [5.6, 5.6], [5.6, 4.4]]
   agent:

@@ -11,9 +11,13 @@ from io import BytesIO
 import argparse
 import numpy as np
 from tqdm import tqdm
-from CMAES import CMAES
 
-from farptest import DECISION_VARS, SCALE
+from swarmsim.world.simulate import main as sim
+from CMAES import CMAES
+from farpcma import gene_to_world, DECISION_VARS
+
+# NOTE: Legacy stuff from the novel-swarms era
+SCALE = 1
 
 
 def metric_to_canon(genome: tuple[float, float, float, float], body_length, scale=SCALE):
@@ -31,12 +35,12 @@ def canon_to_metric(genome: tuple[float, float, float, float], body_length, scal
 
 
 def run(args, genome, callback=lambda x: x) -> float:
-    from swarmsim.world.simulate import main as sim
-    from farptest import get_world_generator
 
-    world_generator = get_world_generator(args.n, args.t)
-    world_config, *_ = world_generator(genome, [-1, -1, -1, -1])
+    # world_generator = get_world_generator(args.n, args.t)
+    # world_config, *_ = world_generator(genome, [-1, -1, -1, -1])
     # note: world_config contains some persistent stuff like behaviors
+
+    world_config = gene_to_world(genome, 2023)
 
     gui = not args.nogui
 
@@ -153,4 +157,3 @@ if __name__ == "__main__":
     else:
         fitness = run(args, genome)
         print(f"Circliness: {fitness}")
-

@@ -1,9 +1,12 @@
+import argparse
+import time
 import copy
 from pathlib import Path
 from collections import Counter
 
 import pandas as pd
 import numpy as np
+from swarmsim.world.World import World
 from tqdm.contrib.concurrent import process_map
 from matplotlib import pyplot as plt
 
@@ -14,7 +17,7 @@ from swarmsim.world.subscribers.WorldSubscriber import WorldSubscriber as WorldS
 from swarmsim.world.simulate import main as simulator
 from swarmsim.world import config_from_yaml
 
-from CMAES import CMAES
+from CMAES_old import CMAES
 from OptimVar import CMAESVarSet
 
 cwd = Path(__file__).resolve().parent
@@ -27,7 +30,7 @@ config = config_from_yaml(
 
 # NOTE: Max vel found   - 0.35 m/s
 # NOTE: Max omega found - 143.292 deg/s
-V_MAX, W_MAX = 0.3, np.deg2rad(90)
+V_MAX, W_MAX = 0.3, np.deg2rad(90) # arbitrary
 PERFECT_SCORE = 0
 SCALE = 1
 DECISION_VARS = CMAESVarSet(
@@ -166,9 +169,8 @@ def run():
     return world
 
 
-
 def get_world_generator(n=6, seed=2023):
-    def gene_to_world(genome, hash_val=None):
+    def gene_to_world(genome, hash_val=None) -> list[World]:
         world_conf = config_from_yaml(cwd / "world.yaml", m="ttc", evader="pid", n=n, seed=seed, g=genome)
         world_conf.metadata = {"hash": hash(tuple(list(hash_val))) if hash_val is not None else None}
         worlds = [world_conf]
@@ -178,9 +180,9 @@ def get_world_generator(n=6, seed=2023):
     return gene_to_world
 
 def test_cma(n, seed, iters, pop_size):
-    def _fitness(world):
-        assert len(world) == 1
-        return world[0].metrics[0].value
+    def _fitness(world_set):
+        assert len(world_set) == 1
+        return world_set[0].metrics[0].value
 
     cmaes = CMAES(
         _fitness,
@@ -195,10 +197,15 @@ def test_cma(n, seed, iters, pop_size):
         round_to_every=None
     )
 
-    result, _ = cmaes.minimize()
-    unnormalized_genome = DECISION_VARS.unit_unnormalize(result.best_feasible["x"])
-    best_conf = get_world_generator(n=n)(unnormalized_genome)
-    return test_single(best_conf[0])
+    best_genome = cmaes.minimize()
+    world = cmaes.mabay_best_world
+    stats = Counter()
+
+    for m in world.metrics:
+        stats[m.name] += m.value
+        out = world.metrics[0].value
+    return stats, out
+
 
 def test_mp_w_cma(samples=100, n_range=None, iters=5, pop_size=10):
     seeds = np.random.default_rng(config.seed).integers(0, 2**31, size=samples)
@@ -231,19 +238,7 @@ def test_mp_w_cma(samples=100, n_range=None, iters=5, pop_size=10):
 
     return results
 
-if __name__ == "__main__":
-    # test_mp()
-    # # test_grid()
-    # # test_seq()
-    # run()
-
-    # import time
-    # start = time.time()
-    # test_cma((8, 2023))
-    # print(f"Took {time.time() - start} seconds")
-
-    import argparse
-    import time
+def run_cma():
     parser = argparse.ArgumentParser()
     parser.add_argument("-t", type=int, default=1000, help="Environment Horizon")
     parser.add_argument("-s", "--samples", type=int, default=30, help="Number of samples")
@@ -268,3 +263,15 @@ if __name__ == "__main__":
         pop_size=args.pop_size
     )
     print(f"Took {time.time() - start} seconds")
+
+if __name__ == "__main__":
+    # test_mp()
+    # # test_grid()
+    # # test_seq()
+    # run()
+
+    start = time.time()
+    print(test_cma(8, 2023, 5, 4))
+    print(f"Took {time.time() - start} seconds")
+
+    # run_cma()
