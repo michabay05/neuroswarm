@@ -32,6 +32,8 @@
 ## Commands to Load Modules:
 # module load use.own uv
 # source ~/cmaes_stuff/turtwig/scripts/new_deploy.sh
+
+cd ~/cmaes_stuff/turtwig/ || { echo "Unable to navigate to turtwig"; exit 1; }
 source .venv/bin/activate || { echo "Unable to activate venv"; exit 1; }
 
 ## Load modules, insert code, and run your programs here.
