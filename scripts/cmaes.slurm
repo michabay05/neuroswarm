@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## Give your job a name to distinguish it from other jobs you run.
-#SBATCH --job-name=cmaes_expr03
+#SBATCH --job-name=cmaes_expr04
 
 ## General partitions: all-HiPri, bigmem-HiPri   --   (12 hour limit)
 ##                     all-LoPri, bigmem-LoPri, gpuq  (5 days limit)
@@ -37,4 +37,4 @@ cd ~/cmaes_stuff/turtwig/ || { echo "Unable to navigate to turtwig"; exit 1; }
 source .venv/bin/activate || { echo "Unable to activate venv"; exit 1; }
 
 ## Load modules, insert code, and run your programs here.
-python rss/farptest/farpcma.py -rs 20 -t 50 -p 50 -mi 100
+python rss/farptest/farpcma.py -rs 20 -t 100 -p 100 -mi 500
