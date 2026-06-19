@@ -28,48 +28,18 @@ VAR_CONFIGS = {
 }
 DECISION_VARS = CMAESVarSet(VAR_CONFIGS)
 
-def gene_to_world(unnorm_genome, seed, blue_n=6):
+def gene_to_world(n: int, unnorm_genome: list[float], seed: int):
     return config_from_yaml(
         cwd / "world.yaml", m="ttc", evader="pid",
-        blue_n=blue_n, seed=seed, g=unnorm_genome
+        n=n, seed=seed, g=unnorm_genome
     )
 
-def fitness_single_OLD(
-    config: tuple[NDArray[np.float64], list[int]]
-) -> tuple[Counter, float]:
-    norm_genome, seeds = config
-
-    unnorm_genome = DECISION_VARS.from_unit_to_scaled(norm_genome)
-    success = 0
-    stats: list[Counter] = []
-    for seed in seeds:
-        world_conf = gene_to_world(unnorm_genome, seed)
-        world = simulate(world_conf, show_gui=False, start_paused=False)
-
-        # TODO: The index here is hard-coded; make this more robust by not
-        # hard-coding the index for the EntityLen metric
-        if world.metrics[3] != 0:
-            success += 1
-
-        stat = Counter()
-        for m in world.metrics:
-            stat[m.name] += m.value
-
-        stats.append(stat)
-
-    success_rate = success / len(seeds)
-    return sum(stats, start=Counter()), success_rate
-
-def fitness_mp_OLD(norm_genomes: NDArray[np.float64], seeds: list[int]):
-    configs = [(norm_genome, seeds) for norm_genome in norm_genomes]
-    return process_map(fitness_single, configs)
-
-def fitness_single(config: tuple[NDArray[np.float64], int]):
-    norm_genome, seed = config
+def fitness_single(config: tuple[int, NDArray[np.float64], int]):
+    n, norm_genome, seed = config
     assert len(norm_genome.shape) == 1
 
     unnorm_genome = DECISION_VARS.from_unit_to_scaled(norm_genome)
-    world_conf = gene_to_world(unnorm_genome, seed)
+    world_conf = gene_to_world(n, unnorm_genome, seed)
     world = simulate(world_conf, show_gui=False, start_paused=False)
 
     # TODO: The index here is hard-coded; make this more robust by not
@@ -77,13 +47,12 @@ def fitness_single(config: tuple[NDArray[np.float64], int]):
     success = 1 if world.metrics[3].value == 0 else 0
 
     stat = Counter()
-
-    blue_n = 0
+    n = 0
     for agent in world.population:
         if agent.team == "blue":
-            blue_n += 1
+            n += 1
 
-    stat["blue_n"] = blue_n
+    stat["n"] = n
     stat["seed"] = int(seed)
     stat["unnorm_genome"] = unnorm_genome
     for m in world.metrics:
@@ -91,11 +60,11 @@ def fitness_single(config: tuple[NDArray[np.float64], int]):
 
     return stat, success
 
-def fitness_mp(norm_genomes: NDArray[np.float64], seeds: list[int]):
+def fitness_mp(n: int, norm_genomes: NDArray[np.float64], seeds: list[int]):
     succ_rates = []
     all_stats = []
     for norm_genome in norm_genomes:
-        configs = [(norm_genome, seed) for seed in seeds]
+        configs = [(n, norm_genome, seed) for seed in seeds]
         ret_arr = process_map(fitness_single, configs)
         stats, successes = zip(*ret_arr)
 
@@ -106,16 +75,28 @@ def fitness_mp(norm_genomes: NDArray[np.float64], seeds: list[int]):
 
     return all_stats, succ_rates
 
-def test_cma(rng_seed=20, trial_seeds_count=10, pop_size=15, max_iters=30):
+
+def test_cma(n_range, rng_seed, trial_seeds_count, pop_size, max_iters):
     trial_seeds = np.random.default_rng(rng_seed).integers(
         0, 2**31, size=trial_seeds_count, dtype=np.int64)
+    assert isinstance(n_range, list)
 
     cmaes = CMAES(
         fitness=fitness_mp, target=PERFECT_SCORE, seed=rng_seed,
         genome_size=4, pop_size=pop_size, max_iters=max_iters
     )
+    bests = []
+
     try:
-        _, _ = cmaes.evolve(trial_seeds)
+        for n in n_range:
+            best_norm_genome, best_fitness = cmaes.evolve(n, trial_seeds)
+            best_unnorm_genome = DECISION_VARS.from_unit_to_scaled(best_norm_genome)
+            bests.append({
+                "n": n,
+                "unnorm_genome": best_unnorm_genome,
+                "fitness": best_fitness,
+            })
+
     except KeyboardInterrupt:
         print("Detected <C-c>; stopping now...")
     finally:
@@ -128,11 +109,16 @@ def test_cma(rng_seed=20, trial_seeds_count=10, pop_size=15, max_iters=30):
                 "pop_size": pop_size,
                 "max_iters": max_iters,
                 "var_configs": VAR_CONFIGS,
+                "bests": bests,
                 "runs": cmaes.all_run_stats
             }, f)
 
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "-n", "--n_range", type=int, nargs="+", required=True, help="Number of defending agents",
+    )
     parser.add_argument(
         "-rs", "--rng_seed", type=int, required=True, help="Seed for RNG",
     )
@@ -150,7 +136,8 @@ if __name__ == "__main__":
 
     start = time.time()
     test_cma(
-        rng_seed=args.rng_seed, trial_seeds_count=args.trials,
-        pop_size=args.pop_size, max_iters=args.max_iters
+        n_range=args.n_range, rng_seed=args.rng_seed,
+        trial_seeds_count=args.trials, pop_size=args.pop_size,
+        max_iters=args.max_iters
     )
     print(f"Took {time.time() - start} seconds")

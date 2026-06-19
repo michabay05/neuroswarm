@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## Give your job a name to distinguish it from other jobs you run.
-#SBATCH --job-name=cmaes_expr04
+#SBATCH --job-name=cmaes_expr05
 
 ## General partitions: all-HiPri, bigmem-HiPri   --   (12 hour limit)
 ##                     all-LoPri, bigmem-LoPri, gpuq  (5 days limit)
@@ -21,10 +21,10 @@
 #SBATCH --ntasks=1  ##number of tasks to run
 
 ## Specify how much memory your job needs. (2G is the default)
-#SBATCH --mem=4GB        # Total memory needed per task (units: K,M,G,T)
+#SBATCH --mem=3GB        # Total memory needed per task (units: K,M,G,T)
 
 ## Specify how much time your job needs. (default: see partition above)
-#SBATCH --time=0-12:00  # Total time needed for job: Days-Hours:Minutes:Seconds
+#SBATCH --time=0-1:30  # Total time needed for job: Days-Hours:Minutes:Seconds
 
 #SBATCH --cpus-per-task 48
 
@@ -37,4 +37,4 @@ cd ~/cmaes_stuff/turtwig/ || { echo "Unable to navigate to turtwig"; exit 1; }
 source .venv/bin/activate || { echo "Unable to activate venv"; exit 1; }
 
 ## Load modules, insert code, and run your programs here.
-python rss/farptest/farpcma.py -rs 20 -t 100 -p 100 -mi 500
+python rss/farptest/farpcma.py -n 6 10 15 -rs 20 -t 150 -p 200 -mi 500

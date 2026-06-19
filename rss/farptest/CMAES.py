@@ -48,10 +48,10 @@ class CMAES:
             # "verb_disp": 50
         }
 
-    def evolve(self, seeds: NDArray[np.int64]):
+    def evolve(self, n: int, seeds: NDArray[np.int64]):
         while not self.es.stop():
             solutions = self.es.ask()
-            stats, succ_rates = self.fitness(solutions, seeds)
+            stats, succ_rates = self.fitness(n, solutions, seeds)
             self.all_run_stats.extend(stats)
             self.es.tell(solutions, succ_rates)
 
