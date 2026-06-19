@@ -24,7 +24,7 @@
 #SBATCH --mem=3GB        # Total memory needed per task (units: K,M,G,T)
 
 ## Specify how much time your job needs. (default: see partition above)
-#SBATCH --time=0-1:30  # Total time needed for job: Days-Hours:Minutes:Seconds
+#SBATCH --time=0-2:30  # Total time needed for job: Days-Hours:Minutes:Seconds
 
 #SBATCH --cpus-per-task 48
 
