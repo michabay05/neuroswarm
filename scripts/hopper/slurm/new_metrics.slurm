@@ -33,8 +33,6 @@ cd turtwig
 
 export MAKE_PARENTS=true
 
-AGG_INDEX=2
-
 ## Run your program or script
 python experiment_tenn2.py train \
     --root mich_results \
@@ -45,5 +43,5 @@ python experiment_tenn2.py train \
     -N 6 \
     --pname_suffix new_mets_es20_n6_trial10 \
     --world rss/turbopi-milling/world.yaml \
-    --behavior AGG_INDEX \
+    --behavior Aggregation \
     --trial 10
