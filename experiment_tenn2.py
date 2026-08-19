@@ -88,8 +88,8 @@ class ConnorMillingExperiment(TennExperiment):
         self.seeds = np.random.default_rng(seed).integers(0, 2**32, size=self.args.trials).tolist()
 
     def fetch_world_config(self):
-        from swarmsim.world.RectangularWorld import RectangularWorldConfig
         from swarmsim import yaml
+        from swarmsim.world.RectangularWorld import RectangularWorldConfig
         if self.args.action != 'train':
             # try:
             #     with open(self.p.artifacts / 'env.yaml', 'r') as f:
@@ -103,10 +103,12 @@ class ConnorMillingExperiment(TennExperiment):
         return config
 
     def simulate(self, processor, network, init_callback=None):
-        from swarmsim.config import register_dictlike_type
-        from swarmsim.world.subscribers.WorldSubscriber import WorldSubscriber as WorldSubscriber
-        from swarmsim.world.simulate import main as simulator
         from swarmsim import metrics
+        from swarmsim.config import register_dictlike_type
+        from swarmsim.world.simulate import main as simulator
+        from swarmsim.world.subscribers.WorldSubscriber import (
+            WorldSubscriber as WorldSubscriber,
+        )
 
         # setup network
         network.set_data("processor", self.processor_params)
