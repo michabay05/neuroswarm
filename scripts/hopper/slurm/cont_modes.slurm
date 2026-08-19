@@ -40,7 +40,7 @@ CIRCLINESS_INDEX=0
 python experiment_tenn2.py train \
     --root mich_results \
     -p 48 \
-    -j cm $SLURM_ARRAY_TASK_ID
+    -j cm $SLURM_ARRAY_TASK_ID \
     --save_all \
     --epochs 500 \
     --eons_seed 20 \

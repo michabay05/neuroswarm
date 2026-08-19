@@ -46,6 +46,7 @@ class CaspianBinaryRemappedController(CaspianBinaryController):
             case 0:
                 # Do nothing
                 pass
+
             case 1:
                 # Use RNG to split ties
                 if v == 0.0:
@@ -55,8 +56,10 @@ class CaspianBinaryRemappedController(CaspianBinaryController):
 
             case 2:
                 # Force v to -1, w to -1
-                v = -v_mapping[1]
-                w = -w_mapping[1]
+                if v == 0.0:
+                    v = -v_mapping[1]
+                if w == 0.0:
+                    w = -w_mapping[1]
 
             case 3:
                 # Force v to -1, w to 1

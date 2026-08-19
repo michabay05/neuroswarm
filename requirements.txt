@@ -1,5 +1,5 @@
 swarmsim
-tqdm
+tqdm==4.69.1
 pandas
 openpyxl
 pyyaml
