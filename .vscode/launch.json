@@ -32,7 +32,15 @@
             "request": "launch",
             // "cwd": "/home/videblu/neuromorphic/RobotSwarmSimulator/demo/configs/conftest",
             "program": "experiment_tenn2.py",
-            "args": ["train", "artifact_test", "--overwrite_project", "-p", "1", "--eons_seed", "20"],
+            "args": [
+                "train",
+                "artifact_test",
+                "--overwrite_project",
+                "-p",
+                "1",
+                "--eons_seed",
+                "20",
+            ],
             "justMyCode": false,
         },
     ]

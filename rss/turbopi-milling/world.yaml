@@ -4,7 +4,7 @@ size:  # in meters
   - 8
   - 8
 time_step: !np 1 / 40  # 0.025 seconds
-seed: 2023
+seed: <{ seed|default(2023) }>
 spawners:
   - type: UniformAgentSpawner
     n: 06  # default number of agents BUT may be overridden by user args

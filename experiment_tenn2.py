@@ -10,7 +10,7 @@ from tqdm.contrib.concurrent import process_map
 from tqdm import tqdm
 
 # Provided Python utilities from tennlab framework/examples/common
-from common.experiment import TennExperiment
+from common.experiment import TennExperiment, caststring
 import common.experiment
 from common import env_tools as envt
 
@@ -48,8 +48,6 @@ class ConnorMillingExperiment(TennExperiment):
             except (KeyError, IndexError, FileNotFoundError, AttributeError):
                 pass
 
-        self.seed_from_yaml()
-
         # register controller type with RSS
         if self.use_caspian:
             from rss.CaspianBinaryController import CaspianBinaryController
@@ -78,35 +76,13 @@ class ConnorMillingExperiment(TennExperiment):
         self.jinja_vars.update({key: load(value)
                                 for key, value in self.args.jinja_vars})
 
-    def seed_from_yaml(self):
-        if (
-            self.args.trials is None
-            or (seed := self.fetch_world_config().seed) is None
-        ):
-            self.seeds = []
-            return
-        self.seeds = np.random.default_rng(seed).integers(0, 2**32, size=self.args.trials).tolist()
-
-    def fetch_world_config(self):
+    def fetch_world_config(self, **kwargs):
         from swarmsim.world.RectangularWorld import RectangularWorldConfig
-        from swarmsim import yaml
-        if self.args.action != 'train':
-            # try:
-            #     with open(self.p.artifacts / 'env.yaml', 'r') as f:
-            #         d = yaml.load(f)
-            # except FileNotFoundError:
-            #     pass
-            # config = RectangularWorldConfig.from_dict(d)
-            config = RectangularWorldConfig.from_yaml_template(self.world_yaml, **self.jinja_vars)
-        else:
-            config = RectangularWorldConfig.from_yaml_template(self.world_yaml, **self.jinja_vars)
-        return config
+        return RectangularWorldConfig.from_yaml_template(self.world_yaml, **(self.jinja_vars | kwargs))
 
-    def simulate(self, processor, network, init_callback=None):
-        from swarmsim.config import register_dictlike_type
+    def simulate(self, processor, network, init_callback=None, **kwargs):
+        from swarmsim import register_dictlike_type, run_sim
         from swarmsim.world.subscribers.WorldSubscriber import WorldSubscriber as WorldSubscriber
-        from swarmsim.world.simulate import main as simulator
-        from swarmsim import metrics
 
         # setup network
         network.set_data("processor", self.processor_params)
@@ -117,7 +93,7 @@ class ConnorMillingExperiment(TennExperiment):
         register_dictlike_type('controller', "CaspianMultibitController", self.multibit_controller)
 
         # setup world
-        config = self.fetch_world_config()
+        config = self.fetch_world_config(**kwargs)
         if self.cycles is not None:
             config.stop_at = self.cycles
         agent_config = config.spawners[0]['agent']
@@ -156,20 +132,22 @@ class ConnorMillingExperiment(TennExperiment):
             or hasattr(self, 'init_callback') and (init_callback := self.init_callback)):
             simargs = init_callback(self, simargs)
 
-        world = simulator(**simargs)  # run simulator
+        world = run_sim(**simargs)  # run simulator
         return world
 
     @staticmethod
     def init_callback(self, simargs):
         return simargs
 
-    def pick_metric(self, world, behavior: int | str | type[AbstractMetric] = 0):
+    def pick_metric(self, world: RectangularWorld,
+                    behavior: int | str | AbstractMetric | type[AbstractMetric] = 0) -> AbstractMetric:
         if behavior in world.metrics:
+            behavior: AbstractMetric = behavior
             return behavior
-        if isinstance(behavior, type):
-            behavior = behavior.name
         if isinstance(behavior, int):
             return world.metrics[behavior]
+        if isinstance(behavior, type):
+            behavior = behavior.name
         elif isinstance(behavior, str) and behavior:
             # set metric to the first metric with the given name, or raise an error
             for metric in world.metrics:
@@ -184,28 +162,30 @@ class ConnorMillingExperiment(TennExperiment):
         msg = f"behavior must be int, str, or type[AbstractMetric]. Got {type(behavior)}"
         raise TypeError(msg)
 
-    def extract_fitness(self, world_output: RectangularWorld, behavior: int | str | type[AbstractMetric] = 0):
+    def extract_fitness(self, world_output: RectangularWorld, behavior: int | str | AbstractMetric | type[AbstractMetric] = 0):
         metric: AbstractMetric = self.pick_metric(world_output, behavior)
         self.run_info = metric.value_history if world_output.metrics else None
         if not world_output.metrics:
-            return 0.0
+            return float('nan')
         return metric.average if getattr(metric, 'default_aggregation', None) == 'average' else metric.value
 
     @override
-    def fitness(self, processor, network, init_callback=None, return_multi=False, agg=sum):
-        if self.seeds:
-            def modify_seed(self, simargs, seed):
-                simargs['world_config'].seed = seed
-                return init_callback(self, simargs) if init_callback else simargs
-            worlds = [self.simulate(processor, network, partial(modify_seed, seed=seed))
-                      for seed in self.seeds]
+    def fitness(self, processor, network, eons_i=None, init_callback=None, return_multi=False, agg=sum,):
+        config_seed = cfg.seed if hasattr((cfg := self.fetch_world_config()), 'seed') and self.args.rngstrat != 'TR' else None
+        eons_i = None if self.args.rngstrat != 'TG' else eons_i
+        base_seed = None if config_seed is None else config_seed + (eons_i or 0)
+        if self.args.trials:  # multiple trials/simulations/fitnesses
+            # in this case, seed_mod is the eons generation
+            seeds = np.random.default_rng(base_seed).integers(0, 2**32, size=self.args.trials)
+            worlds = [self.simulate(processor, network, seed=seed)
+                      for seed in seeds]
             if return_multi:
                 metrics = [self.pick_metric(world, self.args.behavior) for world in worlds]
                 fitnesses = [self.extract_fitness(world, metric) for world, metric in zip(worlds, metrics)]
                 return worlds, metrics, fitnesses
             return agg([self.extract_fitness(world, self.args.behavior) for world in worlds])
-        else:
-            world_final_state = self.simulate(processor, network, init_callback)
+        else:  # single simulation
+            world_final_state = self.simulate(processor, network, seed=base_seed)
             if return_multi:
                 metric = self.pick_metric(world_final_state, self.args.behavior)
                 return world_final_state, metric, self.extract_fitness(world_final_state, metric)
@@ -285,7 +265,7 @@ def run(app, args):
 
     # Run app and print fitness
     world, metric, fitness = app.fitness(proc, net, return_multi=True)
-    if app.seeds:
+    if args.trials:
         for w, m, f in zip(world, metric, fitness):
             print(f"Seed {w.seed}\t\tFitness ({m.name}): {f:8.4f}")
         print(f"Sum: {sum(fitness):8.4f} \t Avg: {sum(fitness) / len(fitness):8.4f} \t Std: {np.std(fitness):8.4f}")
@@ -359,7 +339,8 @@ def get_parsers(parser, subpar):
                          type=int, help="# of agents to run with.",)
         sub.add_argument('--world_yaml', default="rss/turbopi-milling/world.yaml",
                          type=str, help="path to yaml config for sim")
-        sub.add_argument('--behavior', default=0, help="behavior to run. Either int or string matching a behavior name.")
+        sub.add_argument('--behavior', default=0, type=partial(caststring, int),
+                         help="behavior to run. Either int or string matching a behavior name.")
         sub.add_argument('--trials', type=int, default=None,
                          help="number of trials to run. Set to None to run one trial with world.yaml[seed]."
                          " Values greater than 0 will use the world.yaml[seed] to generate more seeds.")
@@ -369,11 +350,13 @@ def get_parsers(parser, subpar):
                          help="Set a variable in the jinja template context. Can be used multiple times. "
                          "Example: -j key value -j key2 99")
 
-    # for key in ('test', 'run'):  # arguments that apply to test/validation and stdin
-    #     pass  # sp[key].add_argument()
+    for key in ('test', 'run'):  # arguments that apply to test/validation and stdin
+        sp[key].add_argument('--rngstrat', choices=['T1', 'TR'],)
+        # pass  # sp[key].add_argument()
 
     # Training args
     sp['train'].add_argument('--label', help="[train] label to put into network JSON (key = label).")
+    sp['train'].add_argument('--rngstrat', choices=['T1', 'TG', 'TR'],)
 
     sp['run'].add_argument('--track_history', action='store_true',
                            help="pass this to enable sensor vs. output plotting.")
@@ -387,7 +370,7 @@ def get_parsers(parser, subpar):
     # Testing args
     sp['test'].add_argument('--positions', default=None,
                              help="file containing agent positions")
-    sp['test'].add_argument('-p', '--processes', type=int, default=1,
+    sp['test'].add_argument('-p', '--processes', type=int, default=None,
                            help="number of threads for concurrent fitness evaluation.")
 
     return parser, subpar
