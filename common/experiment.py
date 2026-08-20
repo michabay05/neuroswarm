@@ -30,6 +30,14 @@ else:
 RE_CONTAINS_SEP = re.compile(r"[/\\]")
 DEFAULT_PROJECT_BASEPATH = pathlib.Path("out")
 
+
+def caststring(type_, x: str):
+    try:
+        return type_(x)
+    except (ValueError, TypeError):
+        return x
+
+
 # class CustomPool():
 #     """pool class for Evolver, so we can use tqdm for those sweet progress bars"""
 
