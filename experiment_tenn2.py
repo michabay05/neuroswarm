@@ -38,6 +38,7 @@ class ConnorMillingExperiment(TennExperiment):
 
         self.track_history = args.track_history or args.log_trajectories
         self.log_trajectories = args.log_trajectories
+        self.viz_trails = args.viz_trails
         self.use_caspian = getattr(args, 'caspian', True)
         self.jinja_vars = {}
         self.process_jinja_vars()
@@ -136,7 +137,7 @@ class ConnorMillingExperiment(TennExperiment):
                     "Event Counts": a.controller.neuron_counts
                 })
 
-        gui = TennlabGUI(x=0, y=0, h=0, w=300)
+        gui = TennlabGUI(viz_trails=self.viz_trails, x=0, y=0, h=0, w=300)
         gui.position = "sidebar_right"
         if self.viz is False or self.noviz:
             gui = False
@@ -378,6 +379,8 @@ def get_parsers(parser, subpar):
     sp['run'].add_argument('--track_history', action='store_true',
                            help="pass this to enable sensor vs. output plotting.")
     sp['run'].add_argument('--log_trajectories', action='store_true',
+                           help="pass this to log sensor vs. output to file.")
+    sp['run'].add_argument('--viz_trails', action='store_true',
                            help="pass this to log sensor vs. output to file.")
     sp['run'].add_argument('--start_paused', action='store_true',
                            help="pass this to pause the simulation at startup. Press Space to unpause.")
