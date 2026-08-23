@@ -63,18 +63,24 @@ class CaspianBinaryRemappedController(CaspianBinaryController):
 
             case 3:
                 # Force v to -1, w to 1
-                v = -v_mapping[1]
-                w = w_mapping[1]
+                if v == 0.0:
+                    v = -v_mapping[1]
+                if w == 0.0:
+                    w = w_mapping[1]
 
             case 4:
                 # Force v to 1, w to -1
-                v = v_mapping[1]
-                w = -w_mapping[1]
+                if v == 0.0:
+                    v = v_mapping[1]
+                if w == 0.0:
+                    w = -w_mapping[1]
 
             case 5:
                 # Force v to 1, w to 1
-                v = v_mapping[1]
-                w = w_mapping[1]
+                if v == 0.0:
+                    v = v_mapping[1]
+                if w == 0.0:
+                    w = w_mapping[1]
 
             case _: raise ValueError("cont mode should be in [0, 6)")
 
