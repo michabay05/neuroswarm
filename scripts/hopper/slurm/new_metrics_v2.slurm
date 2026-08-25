@@ -62,7 +62,7 @@ export MAKE_PARENTS=true
 
 ## Run your program or script
 python experiment_tenn2.py train \
-    --root mich_results \
+    --root results \
     -p 48 \
     --save_all \
     --epochs 500 \
