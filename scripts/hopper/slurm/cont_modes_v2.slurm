@@ -29,8 +29,8 @@
 
 
 MAIN_NEURO=$HOME"/neuromorphic/"
-SCRATCH_NEURO=$SCRATCH"/neuromorphic_new_metrics_02/"
-TURTWIG_BRANCH="new-metrics"
+SCRATCH_NEURO=$SCRATCH"/neuromorphic_cont_modes_02/"
+TURTWIG_BRANCH="controller-ties"
 
 ## Load the relevant modules needed for the job
 module load git
