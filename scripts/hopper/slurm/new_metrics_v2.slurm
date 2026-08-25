@@ -26,7 +26,7 @@
 #SBATCH --cpus-per-task 48
 
 MAIN_NEURO=$HOME"/neuromorphic/"
-SCRATCH_NEURO=$SCRATCH"/neuromophic_new_metrics_02/"
+SCRATCH_NEURO=$SCRATCH"/neuromorphic_new_metrics_02/"
 
 ## Load the relevant modules needed for the job
 module load git
