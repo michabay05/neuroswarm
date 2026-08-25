@@ -46,8 +46,9 @@ python --version
 pip --version
 source $MAIN_NEURO"framework/pyframework/bin/activate"
 
+# NOTE: just doing 'cd turtwig' backfired because zoxide was trying to be too smart...
+cd ./turtwig
 # Ensure `results` folder exists
-cd turtwig
 mkdir -p results
 
 export MAKE_PARENTS=true
