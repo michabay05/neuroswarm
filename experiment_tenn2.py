@@ -1,28 +1,27 @@
-from io import BytesIO
 import os
-import numpy as np
 from functools import partial
-# import matplotlib.pyplot as plt
-
-# import caspian
-
-from tqdm.contrib.concurrent import process_map
-from tqdm import tqdm
-
-# Provided Python utilities from tennlab framework/examples/common
-from common.experiment import TennExperiment
-import common.experiment
-from common import env_tools as envt
-
-from rss.gui import TennlabGUI
-import rss.graphing as graphing
+from io import BytesIO
 
 # typing:
 from typing import override
-from swarmsim.world.RectangularWorld import RectangularWorld
-from swarmsim.metrics.AbstractMetric import AbstractMetric
 
+import numpy as np
+from swarmsim.metrics.abstractmetric import AbstractMetric
+from swarmsim.world.RectangularWorld import RectangularWorld
+from tqdm import tqdm
+
+# import matplotlib.pyplot as plt
+# import caspian
+from tqdm.contrib.concurrent import process_map
+
+import common.experiment
+import rss.graphing as graphing
+from common import env_tools as envt
 from common.argparse import ArgumentError
+
+# Provided Python utilities from tennlab framework/examples/common
+from common.experiment import TennExperiment
+from rss.gui import TennlabGUI
 
 
 class ConnorMillingExperiment(TennExperiment):
