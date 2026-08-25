@@ -10,8 +10,8 @@
 
 ## Separate output and error messages into 2 files.`
 ## NOTE: %u=userID, %x=jobName, %N=nodeID, %j=jobID, %A=arrayID, %a=arrayTaskID`
-#SBATCH --output=/scratch/%u/%x-%N-%j.out  # Output file`
-#SBATCH --error=/scratch/%u/%x-%N-%j.err   # Error file`
+#SBATCH --output=/scratch/%u/std_outputs/%x-%N-%j.out  # Output file`
+#SBATCH --error=/scratch/%u/std_outputs/%x-%N-%j.err   # Error file`
 
 ## Slurm can send you updates via email
 #SBATCH --mail-type=BEGIN,END,FAIL         # ALL,NONE,BEGIN,END,FAIL,REQUEUE,..
@@ -27,13 +27,14 @@
 
 MAIN_NEURO=$HOME"/neuromorphic/"
 SCRATCH_NEURO=$SCRATCH"/neuromorphic_new_metrics_02/"
-TURTWIG_BRANCH="new_metrics"
+TURTWIG_BRANCH="new-metrics"
 
 ## Load the relevant modules needed for the job
 module load git
 module load use.own pyenv
 
 # Setup neuromorphic folders in /scratch
+rm -rf $SCRATCH_NEURO
 mkdir -p $SCRATCH_NEURO
 cd $SCRATCH_NEURO
 ln -s $MAIN_NEURO"framework/" framework
