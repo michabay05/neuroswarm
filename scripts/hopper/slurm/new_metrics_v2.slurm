@@ -27,6 +27,7 @@
 
 MAIN_NEURO=$HOME"/neuromorphic/"
 SCRATCH_NEURO=$SCRATCH"/neuromorphic_new_metrics_02/"
+TURTWIG_BRANCH="new_metrics"
 
 ## Load the relevant modules needed for the job
 module load git
@@ -39,6 +40,13 @@ ln -s $MAIN_NEURO"framework/" framework
 ln -s $MAIN_NEURO"RobotSwarmSimulator/" RobotSwarmSimulator
 git clone https://github.com/michabay05/neuroswarm.git turtwig
 
+# NOTE: just doing 'cd turtwig' backfired because zoxide was trying to be too smart...
+cd ./turtwig
+# Ensure `results` folder exists
+mkdir -p results
+
+git switch -c $TURTWIG_BRANCH "origin/"$TURTWIG_BRANCH
+
 # Setup correct python version
 PYTHON_LATEST="$(pyenv latest 3)"
 pyenv global $PYTHON_LATEST
@@ -46,10 +54,8 @@ python --version
 pip --version
 source $MAIN_NEURO"framework/pyframework/bin/activate"
 
-# NOTE: just doing 'cd turtwig' backfired because zoxide was trying to be too smart...
-cd ./turtwig
-# Ensure `results` folder exists
-mkdir -p results
+# For debugging purposes...after the zoxide issue
+pwd
 
 export MAKE_PARENTS=true
 
