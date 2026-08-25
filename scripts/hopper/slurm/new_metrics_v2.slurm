@@ -37,8 +37,11 @@ module load use.own pyenv
 rm -rf $SCRATCH_NEURO
 mkdir -p $SCRATCH_NEURO
 cd $SCRATCH_NEURO
+
+# TODO: Remove these; do not really need them
 ln -s $MAIN_NEURO"framework/" framework
 ln -s $MAIN_NEURO"RobotSwarmSimulator/" RobotSwarmSimulator
+
 git clone https://github.com/michabay05/neuroswarm.git turtwig
 
 # NOTE: just doing 'cd turtwig' backfired because zoxide was trying to be too smart...
