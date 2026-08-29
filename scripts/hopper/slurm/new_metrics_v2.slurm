@@ -30,6 +30,7 @@ SCRATCH_NEURO=$SCRATCH"/neuromorphic_new_metrics_02/"
 TURTWIG_BRANCH="new-metrics"
 
 ## Load the relevant modules needed for the job
+module load gnu10
 module load git
 module load use.own pyenv
 

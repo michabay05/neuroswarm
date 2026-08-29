@@ -84,10 +84,12 @@ class ConnorMillingExperiment(TennExperiment):
         from swarmsim.world.subscribers.WorldSubscriber import (
             WorldSubscriber as WorldSubscriber,
         )
+        from rss.moving_mass import MovingMass
 
         # setup network
         network.set_data("processor", self.processor_params)
 
+        register_dictlike_type('metrics', "MovingMass", MovingMass)
         # register controller type with RSS
         register_dictlike_type('controller', "CaspianBinaryController", self.controller)
         register_dictlike_type('controller', "CaspianBinaryRemappedController", self.controller_remapped)
