@@ -82,7 +82,11 @@ class CaspianBinaryRemappedController(CaspianBinaryController):
                 if w == 0.0:
                     w = w_mapping[1]
 
-            case _: raise ValueError("cont mode should be in [0, 6)")
+            case 6:
+                if v == 0.0 or w == 0.0:
+                    v, w = 0.0, 0.0
+
+            case _: raise ValueError("cont mode should be in [0, 7)")
 
         return v, w
         # return (0.08, 0.4) if not observation else (0.18, 0.0)  # CMA best controller

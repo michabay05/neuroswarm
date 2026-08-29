@@ -24,7 +24,7 @@
 #SBATCH --time=0-10:00  # Total time needed for job: Days-Hours:Minutes
 
 #SBATCH --cpus-per-task 48
-#SBATCH --array=0-5
+#SBATCH --array=0-6
 
 
 ## Load the relevant modules needed for the job
