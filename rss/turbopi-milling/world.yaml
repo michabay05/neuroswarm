@@ -17,6 +17,7 @@ metrics:
   - type: DelaunayDiffusion
   - type: Aggregation
   - type: DistanceSizeRatio
+  - type: MovingMass
 # init_type:
 #   type: "RectRandomInit"  # A starting region where agents will spawn at t=0
 #   bb:

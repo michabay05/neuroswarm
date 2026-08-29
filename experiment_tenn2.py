@@ -81,7 +81,9 @@ class ConnorMillingExperiment(TennExperiment):
 
     def simulate(self, processor, network, init_callback=None, **kwargs):
         from swarmsim import register_dictlike_type, run_sim
-        from swarmsim.world.subscribers.WorldSubscriber import WorldSubscriber as WorldSubscriber
+        from swarmsim.world.subscribers.WorldSubscriber import (
+            WorldSubscriber as WorldSubscriber,
+        )
 
         # setup network
         network.set_data("processor", self.processor_params)

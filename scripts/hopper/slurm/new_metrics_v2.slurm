@@ -38,10 +38,6 @@ rm -rf $SCRATCH_NEURO
 mkdir -p $SCRATCH_NEURO
 cd $SCRATCH_NEURO
 
-# TODO: Remove these; do not really need them
-ln -s $MAIN_NEURO"framework/" framework
-ln -s $MAIN_NEURO"RobotSwarmSimulator/" RobotSwarmSimulator
-
 git clone https://github.com/michabay05/neuroswarm.git turtwig
 
 # NOTE: just doing 'cd turtwig' backfired because zoxide was trying to be too smart...
@@ -71,7 +67,7 @@ python experiment_tenn2.py train \
     --epochs 500 \
     --eons_seed 20 \
     -N 6 \
-    --pname_suffix new_mets_es20_n6_trial10 \
+    --pname_suffix moving_mass_es20_n6_trial10 \
     --world rss/turbopi-milling/world.yaml \
-    --behavior Aggregation \
+    --behavior MovingMass \
     --trial 10
