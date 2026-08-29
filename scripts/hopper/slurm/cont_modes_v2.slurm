@@ -24,7 +24,7 @@
 #SBATCH --time=0-10:00  # Total time needed for job: Days-Hours:Minutes
 
 #SBATCH --cpus-per-task 48
-#SBATCH --array=0-5
+#SBATCH --array=0-6
 
 
 
@@ -33,6 +33,7 @@ SCRATCH_NEURO=$SCRATCH"/neuromorphic_cont_modes_02/"
 TURTWIG_BRANCH="controller-ties"
 
 ## Load the relevant modules needed for the job
+module load gnu10
 module load git
 module load use.own pyenv
 
@@ -64,8 +65,6 @@ pwd
 export MAKE_PARENTS=true
 
 ## Run your program or script
-CIRCLINESS_INDEX=0
-
 python experiment_tenn2.py train \
     --root results \
     -p 48 \
@@ -76,5 +75,5 @@ python experiment_tenn2.py train \
     -N 6 \
     --pname_suffix cont_modes_es20_n6_trial10 \
     --world rss/turbopi-milling/world.yaml \
-    --behavior CIRCLINESS_INDEX \
+    --behavior Circliness \
     --trial 10

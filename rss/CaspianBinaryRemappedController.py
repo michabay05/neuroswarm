@@ -7,8 +7,8 @@ from .CaspianBinaryController import CaspianBinaryController
 
 
 class CaspianBinaryRemappedController(CaspianBinaryController):
-    def __init__(self, cont_mode: int):
-        super().__init__()
+    def __init__(self, cont_mode: int, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         assert 0 <= cont_mode < 6, "There are only six different testing modes here"
         self.cont_mode = cont_mode
 
