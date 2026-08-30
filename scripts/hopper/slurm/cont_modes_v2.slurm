@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ## Give your job a name to distinguish it from other jobs you run.
-#SBATCH --job-name=snn_cont_modes_02
+#SBATCH --job-name=snn_cont_modes_03
 
 ## General partitions: all-HiPri, bigmem-HiPri   --   (12 hour limit)
 ##                     all-LoPri, bigmem-LoPri, gpuq  (5 days limit)
@@ -18,7 +18,7 @@
 #SBATCH --mail-user=mabayneh@gmu.edu     # Put your GMU email address here
 
 ## Specify how much memory your job needs. (2G is the default)
-#SBATCH --mem=7G        # Total memory needed per task (units: K,M,G,T)
+#SBATCH --mem=6G        # Total memory needed per task (units: K,M,G,T)
 
 ## Specify how much time your job needs. (default: see partition above)
 #SBATCH --time=0-10:00  # Total time needed for job: Days-Hours:Minutes
@@ -29,7 +29,7 @@
 
 
 MAIN_NEURO=$HOME"/neuromorphic/"
-SCRATCH_NEURO=$SCRATCH"/neuromorphic_cont_modes_02/"
+SCRATCH_NEURO=$SCRATCH"/neuromorphic_cont_modes_03-ind"$SLURM_ARRAY_TASK_ID"/"
 TURTWIG_BRANCH="controller-ties"
 
 ## Load the relevant modules needed for the job
@@ -41,8 +41,7 @@ module load use.own pyenv
 rm -rf $SCRATCH_NEURO
 mkdir -p $SCRATCH_NEURO
 cd $SCRATCH_NEURO
-ln -s $MAIN_NEURO"framework/" framework
-ln -s $MAIN_NEURO"RobotSwarmSimulator/" RobotSwarmSimulator
+
 git clone https://github.com/michabay05/neuroswarm.git turtwig
 
 # NOTE: just doing 'cd turtwig' backfired because zoxide was trying to be too smart...
