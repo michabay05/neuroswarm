@@ -69,7 +69,7 @@ python experiment_tenn2.py train \
     --root $RESULTS_DIR \
     -p 48 \
     -j cm $SLURM_ARRAY_TASK_ID \
-    --save_all \
+    --save_best\
     --epochs 500 \
     --eons_seed 20 \
     -N 6 \
