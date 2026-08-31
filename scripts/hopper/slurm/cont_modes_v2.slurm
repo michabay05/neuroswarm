@@ -31,6 +31,7 @@
 MAIN_NEURO=$HOME"/neuromorphic/"
 SCRATCH_NEURO=$SCRATCH"/neuromorphic_cont_modes_03-ind"$SLURM_ARRAY_TASK_ID"/"
 TURTWIG_BRANCH="controller-ties"
+RESULTS_DIR="results_ind"$SLURM_ARRAY_TASK_ID
 
 ## Load the relevant modules needed for the job
 module load gnu10
@@ -47,7 +48,7 @@ git clone https://github.com/michabay05/neuroswarm.git turtwig
 # NOTE: just doing 'cd turtwig' backfired because zoxide was trying to be too smart...
 cd ./turtwig
 # Ensure `results` folder exists
-mkdir -p results
+mkdir -p $RESULTS_DIR
 
 git switch -c $TURTWIG_BRANCH "origin/"$TURTWIG_BRANCH
 
@@ -65,7 +66,7 @@ export MAKE_PARENTS=true
 
 ## Run your program or script
 python experiment_tenn2.py train \
-    --root results \
+    --root $RESULTS_DIR \
     -p 48 \
     -j cm $SLURM_ARRAY_TASK_ID \
     --save_all \
