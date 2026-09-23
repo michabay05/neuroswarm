@@ -1,4 +1,4 @@
-
+module load gnu10
 module load use.own pyenv
 
 PYTHON_LATEST="$(pyenv latest 3)"

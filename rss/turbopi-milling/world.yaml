@@ -21,6 +21,25 @@ metrics:
     history_size: 450
   - type: ExplodingDispersion
     history_size: 450
+  - type: MovingMass
+    history_size: 450
+    linear: [1, 1]
+  - type: Boids
+    linear: [1, 1, 3]
+    separation_metric:
+      history_size: 450
+      # 0.2 - distance between the centers of two agent centers
+      # +0.05 - a bit more padding
+      linear: [[0.2, !np "0.2+0.1", !np "0.2+2*0.1"], [-1, 0, 1]]
+      clamp: [-1, 1]
+    cohesion_metric:
+      history_size: 450
+      linear: [[0.9, 1., 1.1], [1, 0, -1]]
+      clamp: [-1, 1]
+    alignment_metric:
+      history_size: 450
+      pre_exponent: 1
+      post_exponent: 2
 # init_type:
 #   type: "RectRandomInit"  # A starting region where agents will spawn at t=0
 #   bb:
