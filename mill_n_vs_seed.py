@@ -63,6 +63,7 @@ def get_parsers(parser, subpar):
                                 " Values greater than 0 will use the world.yaml[seed] to generate more seeds.")
     sp['test'].add_argument('--exclude', help="regex to exclude paths. Applied per discovered path")
     sp['test'].add_argument('--include', help="Discovered path(s) must match this regex. Default includes all.")
+    sp['test'].add_argument('--csvpath', type=pl.Path, default=default_save_path, help="path to save csv file")
     sp['test'].add_argument('--perproject', action='store_true',
                                 help="After computing all data, save relevant data and plots into each project.")
     sp['test'].add_argument('--force', help="Skip confirmation prompts.", action='store_true')
@@ -188,11 +189,11 @@ def test(args, silent=False):
                 f"\tFitness ({res['metric']}): {res['fitness']:8.4f}")
 
     df = pd.DataFrame(results)
-    df.to_csv(default_save_path)
-    prnt(f"Saved to {default_save_path}")
+    df.to_csv(args.csvpath)
+    prnt(f"Saved to {args.csvpath}")
     if args.perproject:
         prnt("Saving plots/data to each project...")
-        bundles = tuple(product(projects, [default_save_path]))
+        bundles = tuple(product(projects, [args.csvpath]))
         if args.processes == 1 or (args.processes is None and os.cpu_count() == 1):
             for bundle in tqdm.tqdm(bundles):
                 save_to_project(*bundle)

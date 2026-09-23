@@ -2,6 +2,7 @@ from tqdm import tqdm
 from tqdm.contrib.concurrent import process_map
 import os
 import sys
+import ast
 import platform
 import time
 import pathlib
@@ -61,7 +62,10 @@ class TennExperiment(Application):
         self.agents = args.agents
         self.viz_delay = args.viz_delay
         self.processes = args.processes
-        self.cycles = args.cycles
+        try:
+            self.cycles = ast.literal_eval(args.cycles)
+        except ValueError:
+            self.cycles = args.cycles
 
         if args.save_all_nets:
             self.save_strategy = "all"
