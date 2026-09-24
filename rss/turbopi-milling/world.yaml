@@ -26,6 +26,7 @@ metrics:
     linear: [1, 1]
   - type: Boids
     linear: [1, 1, 3]
+    history_size: 450
     separation_metric:
       history_size: 450
       # 0.2 - distance between the centers of two agent centers
