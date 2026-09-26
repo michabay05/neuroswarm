@@ -35,8 +35,8 @@ metrics:
       clamp: [-1, 1]
     cohesion_metric:
       history_size: 450
-      linear: [[0.9, 1., 1.1], [1, 0, -1]]
-      clamp: [-1, 1]
+      linear: [[0.9, 1., 1.1], [1, 0, -3]]
+      clamp: [-3, 1]
     alignment_metric:
       history_size: 450
       pre_exponent: 1
